@@ -14,6 +14,8 @@ def get_href(url: str, soup: BeautifulSoup) -> list:
     for tag in soup.find_all("a"):
         if (tag["href"]).startswith("http"):
             url_list.append(tag["href"])
+        elif (tag["href"]).startswith("/"):
+            url_list.append(url.split("://")[0]+"://"+url.split("://")[1].split("/")[0]+tag["href"])
         else:
             url_list.append(url+tag["href"])
     return url_list
@@ -24,6 +26,8 @@ def get_src(url: str, soup: BeautifulSoup) -> list:
         try:
             if (tag["src"]).startswith("http"):
                 url_list.append(tag["src"])
+            elif (tag["src"]).startswith("/"):
+                url_list.append(url.split("://")[0]+"://"+url.split("://")[1].split("/")[0]+tag["src"])
             else:
                 url_list.append(url+tag["src"])
         except KeyError:
@@ -33,7 +37,7 @@ def get_src(url: str, soup: BeautifulSoup) -> list:
 def remove_other_domain(base_url: str, url_list: list) -> list:
     garbage_url_list = []
     for url in url_list:
-        if not url.split("//")[1].startswith(base_url.split("//")[1].split(".")[0]):
+        if not url.split("://")[1].startswith(base_url.split("://")[1].split(".")[0]):
             garbage_url_list.append(url)
     
     for url in garbage_url_list:

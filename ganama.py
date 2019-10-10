@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
-r"""
+banner = r"""
   ____    _    _   _    _    __  __    _
  / ___|  / \  | \ | |  / \  |  \/  |  / \
 | |  _  / _ \ |  \| | / _ \ | |\/| | / _ \
 | |_| |/ ___ \| |\  |/ ___ \| |  | |/ ___ \
  \____/_/   \_\_| \_/_/   \_\_|  |_/_/   \_\
 
-      Web Application Fuzzer and Parser
+     Web Application Fuzzer and Parser
 """
 
 __author__ = "Hüseyin ALTUNKAYNAK"
@@ -18,17 +18,90 @@ __email__ = "huseyin.altunkaynak51@gmail.com"
 
 import sys
 import argparse
+from urllib.parse import urlsplit
 import gana_fuzzer as gf
 import gana_parser as gp
 
-def parser(url_list):
+
+web_file_extension = [
+    "asp",
+    "aspx",
+    "axd",
+    "asx",
+    "asmx",
+    "ashx",
+    "cfm",
+    "yaws",
+    "swf",
+    "html",
+    "htm",
+    "xhtml",
+    "jhtml",
+    "jsp",
+    "jspx",
+    "wss",
+    "do",
+    "action",
+    "pl",
+    "php",
+    "php4",
+    "php3",
+    "phtml",
+    "py",
+    "rb",
+    "rhtml",
+    "shtml",
+    "svg",
+    "cgi",
+    "dll",
+]
+
+def main_parser(base_url: str) -> list:
+    file_list = []
+    clean_list, garbage_list = gp.main(base_url)
+
+    for url in clean_list:
+        if "." in urlsplit(url).path and urlsplit(url).path.split(".")[-1] not in web_file_extension:
+            file_list.append(url)
+            continue
+
+        try:
+            sub_clean_list, sub_garbage_list = gp.main(url)
+        except Exception as err:
+            print(err)
+            output(clean_list, file_list, garbage_list)
+
+        for clea in sub_clean_list:
+            if clea not in clean_list:
+                clean_list.append(clea)
+
+        for garb in sub_garbage_list:
+            if garb not in garbage_list:
+                garbage_list.append(garb)
+
+    for url in file_list:
+        clean_list.remove(url)
+
+    return [clean_list, garbage_list, file_list]
+
+def main_fuzzer(url, wordlist):
     pass
 
-def fuzzer(url, wordlist):
-    pass
+def output(clean_list: list, garbage_list: list, file_list: list):
+    with open("clean_url.txt", "w") as f:
+        for url in clean_list:
+            f.write("%s\n" % url)
+    
+    with open("file_url.txt", "w") as f:
+        for url in file_list:
+            f.write("%s\n" % url)
+    
+    with open("garbage_url.txt", "w") as f:
+        for url in garbage_list:
+            f.write("%s\n" % url)
 
 if __name__ == "__main__":
-    print("GANAMA Project")
+    print(banner)
     parser = argparse.ArgumentParser(prog="GANAMA",
         description="GANAMA Web Application Fuzzer and Parser",
         epilog="Copyright 2019, huseyince.com")
@@ -46,12 +119,11 @@ if __name__ == "__main__":
             sys.exit(0)
 
     if not args.output:
-        args.output = "gana_out_" + args.url.split("://")[1]
+        args.output = "gana_out_" + args.url.split("://")[1].split("/")[0]
     
     if not args.wordlist:
         args.wordlist = "common.txt"
     
-    clean_list, garbage_list = gp.main(args.url)
+    lists = main_parser(args.url)
 
-    for url in clean_list:
-        print(url)
+    output(lists[0], lists[1], lists[2])
