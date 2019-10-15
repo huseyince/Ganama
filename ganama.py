@@ -61,6 +61,7 @@ def main_parser(base_url: str) -> list:
     clean_list, garbage_list = gp.main(base_url)
 
     for url in clean_list:
+        print(url)
         if "." in urlsplit(url).path and urlsplit(url).path.split(".")[-1] not in web_file_extension:
             file_list.append(url)
             continue

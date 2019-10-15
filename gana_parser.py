@@ -12,12 +12,27 @@ def unique(list1: list) -> list:
 def get_href(url: str, soup: BeautifulSoup) -> list:
     url_list = []
     for tag in soup.find_all("a"):
-        if (tag["href"]).startswith("http"):
-            url_list.append(tag["href"])
-        elif (tag["href"]).startswith("/"):
-            url_list.append(url.split("://")[0]+"://"+url.split("://")[1].split("/")[0]+tag["href"])
-        else:
-            url_list.append(url+tag["href"])
+        try:
+            if (tag["href"]).startswith("http"):
+                url_list.append(tag["href"])
+            elif (tag["href"]).startswith("/"):
+                url_list.append(url.split("://")[0]+"://"+url.split("://")[1].split("/")[0]+tag["href"])
+            elif (tag["href"]).startswith("javascript"):
+                continue
+            elif (tag["href"]).startswith("$"):
+                continue
+            elif (tag["href"]).startswith("#"):
+                continue
+            elif (tag["href"]).startswith(""):
+                continue
+            elif (tag["href"]).startswith("mailto"):
+                continue
+            elif (tag["href"]).startswith("tel"):
+                continue
+            else:
+                url_list.append(url+tag["href"])
+        except KeyError:
+            continue
     return url_list
 
 def get_src(url: str, soup: BeautifulSoup) -> list:
@@ -28,6 +43,8 @@ def get_src(url: str, soup: BeautifulSoup) -> list:
                 url_list.append(tag["src"])
             elif (tag["src"]).startswith("/"):
                 url_list.append(url.split("://")[0]+"://"+url.split("://")[1].split("/")[0]+tag["src"])
+            elif (tag["src"]).startswith("$"):
+                continue
             else:
                 url_list.append(url+tag["src"])
         except KeyError:
