@@ -16,7 +16,7 @@ __license__ = "GNU General Public License"
 __version__ = "1.0"
 __email__ = "huseyin.altunkaynak51@gmail.com"
 
-import sys
+import sys, os
 import argparse
 from urllib.parse import urlsplit
 import gana_fuzzer as gf
@@ -70,7 +70,7 @@ def main_parser(base_url: str) -> list:
             sub_clean_list, sub_garbage_list = gp.main(url)
         except Exception as err:
             print(err)
-            output(clean_list, file_list, garbage_list)
+            output("last_error", clean_list, file_list, garbage_list)
 
         for clea in sub_clean_list:
             if clea not in clean_list:
@@ -88,18 +88,25 @@ def main_parser(base_url: str) -> list:
 def main_fuzzer(url, wordlist):
     pass
 
-def output(clean_list: list, garbage_list: list, file_list: list):
-    with open("clean_url.txt", "w") as f:
-        for url in clean_list:
-            f.write("%s\n" % url)
-    
-    with open("file_url.txt", "w") as f:
-        for url in file_list:
-            f.write("%s\n" % url)
-    
-    with open("garbage_url.txt", "w") as f:
-        for url in garbage_list:
-            f.write("%s\n" % url)
+def output(output_name: str, clean_list: list, garbage_list: list, file_list: list):
+    path = "Reports/" + output_name
+
+    try:
+        os.mkdir(path)
+    except OSError:
+        print("Directory not created!")
+    else:
+        with open(path + "/clean.txt", "w") as f:
+            for url in clean_list:
+                f.write("%s\n" % url)
+        
+        with open(path + "/garbage.txt", "w") as f:
+            for url in garbage_list:
+                f.write("%s\n" % url)
+
+        with open(path + "/file.txt", "w") as f:
+            for url in file_list:
+                f.write("%s\n" % url)
 
 if __name__ == "__main__":
     print(banner)
@@ -119,12 +126,14 @@ if __name__ == "__main__":
             print("Checkout your URL http:// or https://")
             sys.exit(0)
 
-    if not args.output:
-        args.output = "gana_out_" + args.url.split("://")[1].split("/")[0]
+    if args.output:
+        args.output = args.output
+    else:
+        args.output = args.url.split("://")[1].split("/")[0]
     
     if not args.wordlist:
         args.wordlist = "common.txt"
     
     lists = main_parser(args.url)
 
-    output(lists[0], lists[1], lists[2])
+    output(args.output, lists[0], lists[1], lists[2])
