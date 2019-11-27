@@ -141,6 +141,9 @@ def output(output_name: str, clean_list: list, garbage_list: list, file_list: li
         else:
             report2file(path, clean_list, garbage_list, file_list)
             print("\n[+] Report saved in /tmp/Ganama/" + path)
+    else:
+        report2file(path, clean_list, garbage_list, file_list)
+        print("\n[+] Report successfully saved in " + path)
 
 if __name__ == "__main__":
     print(banner)
