@@ -7,7 +7,7 @@ banner = r"""
 | |_| |/ ___ \| |\  |/ ___ \| |  | |/ ___ \
  \____/_/   \_\_| \_/_/   \_\_|  |_/_/   \_\
 
-     Web Application Fuzzer and Parser
+     Web Application Parser and Fuzzer
 """
 
 __author__ = "Hüseyin ALTUNKAYNAK"
@@ -18,6 +18,7 @@ __email__ = "huseyin.altunkaynak51@gmail.com"
 
 import sys, os
 import argparse
+import shutil
 from urllib.parse import urlsplit
 import gana_fuzzer as gf
 import gana_parser as gp
@@ -61,7 +62,7 @@ def main_parser(base_url: str) -> list:
     clean_list, garbage_list = gp.main(base_url)
 
     for url in clean_list:
-        print(url)
+        print("[+] " + url)
         if "." in urlsplit(url).path and urlsplit(url).path.split(".")[-1] not in web_file_extension:
             file_list.append(url)
             continue
@@ -88,25 +89,58 @@ def main_parser(base_url: str) -> list:
 def main_fuzzer(url, wordlist):
     pass
 
+def report2file(path: str, clean_list: list, garbage_list: list, file_list: list):
+    with open(path + "/clean.txt", "w") as f:
+        for url in clean_list:
+            f.write("%s\n" % url)
+    
+    with open(path + "/garbage.txt", "w") as f:
+        for url in garbage_list:
+            f.write("%s\n" % url)
+
+    with open(path + "/file.txt", "w") as f:
+        for url in file_list:
+            f.write("%s\n" % url)
+
 def output(output_name: str, clean_list: list, garbage_list: list, file_list: list):
     path = "Reports/" + output_name
 
     try:
         os.mkdir(path)
+    except FileExistsError:
+        for r_file in os.listdir(path):
+            os.remove(path + "/" + r_file)
+        report2file(path, clean_list, garbage_list, file_list)
+        print("\n[+] Report saved successfully in " + path)
     except OSError:
-        print("Directory not created!")
-    else:
-        with open(path + "/clean.txt", "w") as f:
-            for url in clean_list:
-                f.write("%s\n" % url)
-        
-        with open(path + "/garbage.txt", "w") as f:
-            for url in garbage_list:
-                f.write("%s\n" % url)
+        print("\n[!] Directory not created!")
+        path = "/tmp/Ganama/" + path
+        try:
+            shutil.rmtree(path)
+        except FileNotFoundError:
+            pass
 
-        with open(path + "/file.txt", "w") as f:
+        try:
+            os.mkdir("/tmp/Ganama")
+        except FileExistsError:
+            pass
+
+        try:
+            os.mkdir(path)
+        except OSError:
+            print("\n[!] Oops! " + path + " not created.")
+            print("\n[-->] CLEAN LIST")
+            for url in clean_list:
+                print("[+] " + url)
+            print("\n[-->] FILE LIST")
             for url in file_list:
-                f.write("%s\n" % url)
+                print("[+] " + url)
+            print("\n[-->] GARBAGE LIST")
+            for url in garbage_list:
+                print("[+] " + url)
+        else:
+            report2file(path, clean_list, garbage_list, file_list)
+            print("\n[+] Report saved in /tmp/Ganama/" + path)
 
 if __name__ == "__main__":
     print(banner)
