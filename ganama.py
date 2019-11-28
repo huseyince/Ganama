@@ -1,15 +1,5 @@
 #!/usr/bin/env python3
 
-banner = r"""
-  ____    _    _   _    _    __  __    _
- / ___|  / \  | \ | |  / \  |  \/  |  / \
-| |  _  / _ \ |  \| | / _ \ | |\/| | / _ \
-| |_| |/ ___ \| |\  |/ ___ \| |  | |/ ___ \
- \____/_/   \_\_| \_/_/   \_\_|  |_/_/   \_\
-
-     Web Application Parser and Fuzzer
-"""
-
 __author__ = "Hüseyin ALTUNKAYNAK"
 __copyright__ = "Copyright 2019, Hüseyin ALTUNKAYNAK"
 __license__ = "GNU General Public License"
@@ -23,6 +13,26 @@ from urllib.parse import urlsplit
 import gana_fuzzer as gf
 import gana_parser as gp
 
+
+NOCOLOR='\033[0m'
+WHITE='\033[1;37m'
+RED='\033[1;31m'
+ORANGE='\033[0;33m'
+BLUE='\033[1;34m'
+YELLOW='\033[1;33m'
+GREEN='\033[1;32m'
+PURPLE='\033[1;35m'
+CYAN='\033[1;36m'
+
+banner = WHITE + r"""
+  ____    _    _   _    _    __  __    _
+ / ___|  / \  | \ | |  / \  |  \/  |  / \
+| |  _  / _ \ |  \| | / _ \ | |\/| | / _ \
+| |_| |/ ___ \| |\  |/ ___ \| |  | |/ ___ \
+ \____/_/   \_\_| \_/_/   \_\_|  |_/_/   \_\
+
+     Web Application Parser and Fuzzer
+""" + NOCOLOR
 
 web_file_extension = [
     "asp",
@@ -62,7 +72,7 @@ def main_parser(base_url: str) -> list:
     clean_list, garbage_list = gp.main(base_url)
 
     for url in clean_list:
-        print("[+] " + url)
+        print(YELLOW + "[+] " + url)
         if "." in urlsplit(url).path and urlsplit(url).path.split(".")[-1] not in web_file_extension:
             file_list.append(url)
             continue
@@ -111,9 +121,9 @@ def output(output_name: str, clean_list: list, garbage_list: list, file_list: li
         for r_file in os.listdir(path):
             os.remove(path + "/" + r_file)
         report2file(path, clean_list, garbage_list, file_list)
-        print("\n[+] Report saved successfully in " + path)
+        print(GREEN + "\n[+] Report saved successfully in " + path)
     except OSError:
-        print("\n[!] Directory not created!")
+        print(RED + "\n[!] Directory not created!")
         path = "/tmp/Ganama/" + path
         try:
             shutil.rmtree(path)
@@ -128,22 +138,22 @@ def output(output_name: str, clean_list: list, garbage_list: list, file_list: li
         try:
             os.mkdir(path)
         except OSError:
-            print("\n[!] Oops! " + path + " not created.")
-            print("\n[-->] CLEAN LIST")
+            print(RED + "\n[!] Oops! " + path + " not created.")
+            print(BLUE + "\n[-->] CLEAN LIST")
             for url in clean_list:
-                print("[+] " + url)
-            print("\n[-->] FILE LIST")
+                print(ORANGE + "[+] " + url)
+            print(BLUE + "\n[-->] FILE LIST")
             for url in file_list:
-                print("[+] " + url)
-            print("\n[-->] GARBAGE LIST")
+                print(ORANGE + "[+] " + url)
+            print(BLUE + "\n[-->] GARBAGE LIST")
             for url in garbage_list:
-                print("[+] " + url)
+                print(ORANGE + "[+] " + url)
         else:
             report2file(path, clean_list, garbage_list, file_list)
-            print("\n[+] Report saved in /tmp/Ganama/" + path)
+            print(GREEN + "\n[+] Report saved in /tmp/Ganama/" + path)
     else:
         report2file(path, clean_list, garbage_list, file_list)
-        print("\n[+] Report successfully saved in " + path)
+        print(GREEN + "\n[+] Report successfully saved in " + path)
 
 if __name__ == "__main__":
     print(banner)
@@ -157,10 +167,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if not args.url:
-        print("usage: python3 ganama.py -h")
+        print(RED + "usage: python3 ganama.py -h")
+        sys.exit(0)
     if args.url:
         if args.url.split(":")[0] not in ["http", "https"]:
-            print("Checkout your URL http:// or https://")
+            print(RED + "Checkout your URL http:// or https://")
             sys.exit(0)
 
     if args.output:
