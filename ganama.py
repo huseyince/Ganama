@@ -81,7 +81,7 @@ def main_parser(base_url: str) -> list:
             sub_clean_list, sub_garbage_list = gp.main(url)
         except Exception as err:
             print(err)
-            output("last_error", clean_list, file_list, garbage_list)
+            output("last_error", clean_list, garbage_list, file_list)
 
         for clea in sub_clean_list:
             if clea not in clean_list:

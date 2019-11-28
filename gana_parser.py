@@ -1,6 +1,9 @@
 from bs4 import BeautifulSoup
 import requests as req
 
+with open("country_list", "r") as c_list:
+    country_list = [x[:-1] for x in c_list.readlines()]
+
 
 def unique(list1: list) -> list:
     unique_list = []
@@ -54,7 +57,21 @@ def get_src(url: str, soup: BeautifulSoup) -> list:
 def remove_other_domain(base_url: str, url_list: list) -> list:
     garbage_url_list = []
     for url in url_list:
-        if not url.split("://")[1].startswith(base_url.split("://")[1].split(".")[0]):
+        if base_url.split("://")[1].split("/")[0].split(".")[-1] in country_list:
+            if len(base_url.split("://")[1].split("/")[0].split(".")) == 2:
+                domain = base_url.split("://")[1].split("/")[0].split(".")[-2]
+            else:
+                domain = base_url.split("://")[1].split("/")[0].split(".")[-3]
+        else:
+            domain = base_url.split("://")[1].split("/")[0].split(".")[-2]
+        if url.split("://")[1].split("/")[0].split(".")[-1] in country_list:
+            if len(url.split("://")[1].split("/")[0].split(".")) == 2:
+                iter_url = url.split("://")[1].split("/")[0].split(".")[-2]
+            else:
+                iter_url = url.split("://")[1].split("/")[0].split(".")[-3]
+        else:
+            iter_url = url.split("://")[1].split("/")[0].split(".")[-2]
+        if iter_url != domain:
             garbage_url_list.append(url)
     
     for url in garbage_url_list:
