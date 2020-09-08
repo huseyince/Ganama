@@ -70,8 +70,12 @@ web_file_extension = [
 def main_parser(base_url: str) -> list:
     file_list = []
     clean_list, garbage_list = gp.main(base_url)
+    clean_list_length = len(clean_list)
 
     for url in clean_list:
+        if clean_list_length == 0: # For depth = 1
+            break
+        clean_list_length -= 1
         print(YELLOW + "[+] " + url)
         if "." in urlsplit(url).path and urlsplit(url).path.split(".")[-1] not in web_file_extension:
             file_list.append(url)
