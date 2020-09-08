@@ -174,6 +174,8 @@ if __name__ == "__main__":
         print(RED + "usage: python3 ganama.py -h")
         sys.exit(0)
     if args.url:
+        if not args.url.endswith('/'):
+            args.url = args.url + '/'
         if args.url.split(":")[0] not in ["http", "https"]:
             print(RED + "Checkout your URL http:// or https://")
             sys.exit(0)
